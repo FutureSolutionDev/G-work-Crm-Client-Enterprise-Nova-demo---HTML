@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: { extend: {
+        colors: {
+          bg: "var(--bg)", fg: "var(--fg)", muted: "var(--muted)", surface: "var(--surface)",
+          raised: "var(--raised)", line: "var(--line)", accent: "var(--accent)", "accent-fg": "var(--accent-fg)", teal: "var(--teal)", ink: "var(--ink)",
+        },
+        fontFamily: { sans: ["Inter","IBM Plex Sans Arabic","Segoe UI","sans-serif"] },
+      } }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  undefined<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root { --bg:#eef3fb; --fg:#0b1528; --muted:#5b6b86; --surface:#ffffff; --raised:#f4f7fc; --line:rgba(15,35,70,.12); --accent:#3b82f6; --accent-fg:#ffffff; --teal:#16a34a; --ink:#0b1528; --glow:rgba(59,130,246,.16); }
+    .dark { --bg:#07111f; --fg:#e8eef8; --muted:#93a4c0; --surface:#0d1b33; --raised:#122240; --line:rgba(148,163,184,.16); --accent:#3b82f6; --accent-fg:#ffffff; --teal:#22c55e; --ink:#e8eef8; --glow:rgba(59,130,246,.22); }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body { margin:0; font-family: Inter, "IBM Plex Sans Arabic", Segoe UI, sans-serif; background:var(--bg); color:var(--fg); -webkit-font-smoothing:antialiased; }
+    body::before { content:""; pointer-events:none; position:fixed; inset:0; background: radial-gradient(42rem 28rem at 8% -8%, var(--glow), transparent 58%), radial-gradient(36rem 24rem at 96% 0%, rgba(96,165,250,.08), transparent 55%); z-index:0; }
+    [x-cloak] { display:none !important; }
+    .tabular { font-variant-numeric: tabular-nums; }
+    .bg-surface\/90 { background: color-mix(in srgb, var(--surface) 90%, transparent); }
+    .bg-surface\/80 { background: color-mix(in srgb, var(--surface) 80%, transparent); }
+    .bg-surface\/70 { background: color-mix(in srgb, var(--surface) 70%, transparent); }
+    .bg-raised\/70 { background: color-mix(in srgb, var(--raised) 70%, transparent); }
+    .bg-raised\/60 { background: color-mix(in srgb, var(--raised) 60%, transparent); }
+    .bg-accent\/10 { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+    .bg-accent\/15 { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+    .bg-accent\/20 { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+    .bg-teal\/15 { background: color-mix(in srgb, var(--teal) 15%, transparent); }
+    .text-fg\/80 { color: color-mix(in srgb, var(--fg) 80%, transparent); }
+    .hover\:border-accent\/40:hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+    .hover\:border-accent\/30:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+    .focus\:border-accent\/50:focus { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+    @keyframes nav-reconnect { 0%{transform:translateX(-120%)} 100%{transform:translateX(320%)} }
+    .nav-reconnect-bar { animation: nav-reconnect 1.4s ease-in-out infinite; }
+    ::-webkit-scrollbar { width:8px; height:8px; }
+    ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--muted) 55%, transparent); border-radius:99px; }
+  </style>
+</head>
+<body class="min-h-screen bg-bg text-fg" x-data="novaApp()" x-init="boot()" x-cloak>
+  <aside class="fixed inset-y-0 z-30 flex flex-col border-e border-line bg-surface/90 backdrop-blur-xl transition-all duration-300" :class="open ? 'w-64' : 'w-[4.25rem]'">
+    <div class="flex h-16 items-center gap-3 px-3">
+      <a href="Landing.html" class="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[#1e293b] shadow-[0_8px_24px_var(--glow)]">
+        <img src="../Img/icons/144.svg" alt="" class="h-10 w-10 object-contain" />
+      </a>
+      <div class="min-w-0 transition-opacity" :class="open ? 'opacity-100' : 'pointer-events-none opacity-0'">
+        <p class="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-accent" x-text="t.APP_MARK"></p>
+        <p class="truncate text-sm font-bold leading-tight" x-text="t.APP_NAME"></p>
+      </div>
+    </div>
+    <nav class="flex-1 space-y-1 overflow-y-auto px-2 pb-6">
+      
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-accent">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.Administrator"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="Dashboard.html" title="Dashboard" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition bg-accent text-accent-fg shadow-sm">
+                  <i data-lucide="layout-dashboard" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Dashboard"></span>
+                </a>
+                <a href="Admin.html" title="MasterData" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="database" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.MasterData"></span>
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.Management"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="mgmt/CustomerPage.html" title="Customer" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="users" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Customer"></span>
+                </a>
+                <a href="mgmt/ContractPage.html" title="Contract" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="file-signature" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Contract"></span>
+                </a>
+                <a href="mgmt/TasksPage.html" title="Tasks" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="list-todo" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Tasks"></span>
+                </a>
+                <a href="mgmt/MeetingsPage.html" title="Meeting" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="calendar-days" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Meeting"></span>
+                </a>
+                <a href="mgmt/CallsPage.html" title="Call" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="phone" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Call"></span>
+                </a>
+                <a href="mgmt/RequestsPage.html" title="Request" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="inbox" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Request"></span>
+                </a>
+                <a href="mgmt/AccManagerPage.html" title="AccManager" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="shield-check" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.AccManager"></span>
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.Activity"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="AuditLogPage.html" title="AuditLog" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="scroll-text" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.AuditLog"></span>
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.Reports"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="reports/ClassicReport.html?report=TeleSalesReport" title="TeleSalesReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="headset" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.TeleSalesReport"></span>
+                </a>
+                <a href="reports/ClassicReport.html?report=SalesReport" title="SalesReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="badge-dollar-sign" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.SalesReport"></span>
+                </a>
+                <a href="reports/RevenueReport.html" title="RevenueReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="wallet" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.RevenueReport"></span>
+                </a>
+                <a href="reports/ScopedReport.html?report=AccountsReport" title="AccountsReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="briefcase" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.AccountsReport"></span>
+                </a>
+                <a href="reports/ScopedReport.html?report=AccountManagerReport" title="AccountManagerReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="users" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.AccountManagerReport"></span>
+                </a>
+                <a href="reports/ScopedReport.html?report=TechnicalReport" title="TechnicalReport" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="wrench" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.TechnicalReport"></span>
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.Support"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="ChatPage.html" title="Chat" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="message-square" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Chat"></span>
+                </a>
+              </div>
+            </div>
+            <div class="rounded-2xl" x-data="{ expanded: true }">
+              <button type="button" @click="expanded = !expanded" class="flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-muted">
+                <span :class="open ? 'block' : 'sr-only'" x-text="t.SIDEBAR.GROUPS.WorkSpace"></span>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition" :class="expanded ? 'rotate-0' : '-rotate-90'" x-show="open"></i>
+              </button>
+              <div class="space-y-0.5" x-show="expanded || !open">
+                
+                <a href="DocsPage.html" title="Docs" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="folder-open" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Docs"></span>
+                </a>
+                <a href="NotesPage.html" title="Note" class="group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition text-fg/80 hover:bg-raised">
+                  <i data-lucide="sticky-note" class="h-[1.15rem] w-[1.15rem] shrink-0"></i>
+                  <span class="truncate font-semibold" :class="open ? 'opacity-100' : 'sr-only'" x-text="t.SIDEBAR.Note"></span>
+                </a>
+              </div>
+            </div>
+    </nav>
+  </aside>
+
+  <header class="fixed top-0 z-20 flex h-16 items-center justify-between border-b border-line bg-surface/80 px-4 backdrop-blur-xl transition-all duration-300" :class="open ? 'start-64 w-[calc(100%-16rem)]' : 'start-[4.25rem] w-[calc(100%-4.25rem)]'">
+    <div class="flex min-w-0 items-center gap-3">
+      <button type="button" @click="open=!open" class="grid h-9 w-9 place-items-center rounded-xl border border-line bg-raised text-fg hover:border-accent/40" aria-label="Toggle sidebar">
+        <i data-lucide="menu" class="h-5 w-5"></i>
+      </button>
+      <div class="hidden min-w-0 md:block">
+        <p class="truncate text-sm font-bold" x-text="t.DASHBOARD.TITLE"></p>
+        <p class="truncate text-xs text-muted">Admin Demo</p>
+      </div>
+    </div>
+    <label class="relative mx-4 hidden max-w-md flex-1 lg:block">
+      <i data-lucide="search" class="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"></i>
+      <input type="search" :placeholder="t.SEARCH" class="h-10 w-full rounded-full border border-line bg-raised/70 ps-10 pe-4 text-sm outline-none placeholder:text-muted focus:border-accent/50" />
+    </label>
+    <div class="flex items-center gap-1.5 rounded-full border border-line bg-raised/60 p-1">
+      <span class="hidden items-center gap-1.5 rounded-full bg-teal/15 px-2.5 py-1 text-[11px] font-bold text-teal sm:inline-flex">
+        <i data-lucide="wifi" class="h-3.5 w-3.5"></i>
+        <span x-text="t.ONLINE"></span>
+      </span>
+      <div class="relative">
+        <button type="button" class="relative grid h-8 w-8 place-items-center rounded-full text-fg/80 hover:bg-surface" @click="notifOpen=!notifOpen">
+          <i data-lucide="bell" class="h-4 w-4"></i>
+          <span class="absolute -end-0.5 -top-0.5 min-w-4 rounded-full bg-accent px-1 text-[10px] font-extrabold text-accent-fg">3</span>
+        </button>
+        <div x-show="notifOpen" @click.outside="notifOpen=false" class="absolute end-0 top-10 z-40 w-80 overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl">
+          <div class="flex items-center justify-between border-b border-line px-3 py-2">
+            <p class="text-sm font-extrabold" x-text="t.NOTIFICATIONS"></p>
+            <button type="button" class="inline-flex items-center gap-1 text-xs font-bold text-accent" x-text="t.MARK_ALL"></button>
+          </div>
+          <ul class="max-h-80 divide-y divide-line overflow-auto">
+            <template x-for="n in notifs" :key="n.NotifyId">
+              <li class="px-3 py-2.5">
+                <p class="text-sm font-semibold" x-text="n.NotifyType"></p>
+                <p class="text-xs text-muted" x-text="n.NotifyItem"></p>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </div>
+      <button type="button" class="grid h-8 w-8 place-items-center rounded-full text-fg/80 hover:bg-surface" :title="t.SYNC" @click="toast(t.SYNCED)"><i data-lucide="refresh-cw" class="h-4 w-4"></i></button>
+      <button type="button" class="grid h-8 w-8 place-items-center rounded-full text-fg/80 hover:bg-surface" title="Language" @click="toggleLang()"><i data-lucide="languages" class="h-4 w-4"></i></button>
+      <button type="button" class="grid h-8 w-8 place-items-center rounded-full text-fg/80 hover:bg-surface" title="Theme" @click="toggleTheme()">
+        <i x-show="theme==='dark'" data-lucide="sun" class="h-4 w-4"></i>
+        <i x-show="theme!=='dark'" data-lucide="moon" class="h-4 w-4"></i>
+      </button>
+      <div class="relative">
+        <button type="button" @click="menuOpen=!menuOpen" class="ms-1 grid h-8 w-8 place-items-center rounded-full bg-accent text-xs font-extrabold text-accent-fg">AD</button>
+        <div x-show="menuOpen" @click.outside="menuOpen=false" class="absolute end-0 top-10 z-40 w-44 overflow-hidden rounded-xl border border-line bg-surface shadow-xl">
+          <div class="border-b border-line px-3 py-2">
+            <p class="truncate text-xs font-bold">Admin Demo</p>
+            <p class="truncate text-[11px] text-muted">admin@exista.om</p>
+          </div>
+          <button type="button" class="block w-full px-3 py-2 text-start text-xs font-semibold hover:bg-raised"><span x-text="t.PRESENCE"></span>: ONLINE</button>
+          <a href="Login.html" class="flex w-full items-center gap-2 px-3 py-2 text-start text-xs font-bold text-rose-400 hover:bg-raised">
+            <i data-lucide="log-out" class="h-3.5 w-3.5"></i>
+            <span x-text="t.LOGOUT"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="min-h-screen pt-16 transition-all duration-300" :class="open ? 'ps-64' : 'ps-[4.25rem]'">
+    <div class="p-3 lg:p-4">
+      
+      <div class="flex flex-col gap-3">
+        <section class="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-line bg-surface px-5 py-4">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-accent" x-text="today"></p>
+            <h1 class="mt-1 text-2xl font-extrabold tracking-tight" x-text="t.GREETING"></h1>
+            <p class="mt-1 max-w-xl text-sm text-muted" x-text="t.GREETING_SUB"></p>
+          </div>
+          <p class="text-xs font-semibold text-muted" x-text="t.DASHBOARD.LIVE"></p>
+        </section>
+        <section class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-7">
+          <template x-for="[key,value] in Object.entries(counters)" :key="key">
+            <button type="button" @click="goStat(key)" class="group relative overflow-hidden rounded-2xl border border-line bg-surface p-4 text-start shadow-[0_10px_30px_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:border-accent/30" :style="'--stat-accent:'+(accents[key]||'#e8a317')">
+              <span class="absolute inset-y-0 start-0 w-1.5 bg-[var(--stat-accent)]"></span>
+              <div class="flex items-start justify-between gap-3 ps-2">
+                <div class="min-w-0">
+                  <p class="truncate text-xs font-semibold text-muted" x-text="t.SIDEBAR[key] || key"></p>
+                  <p class="tabular mt-1 text-2xl font-extrabold tracking-tight" x-text="Number(value).toLocaleString()"></p>
+                </div>
+                <span class="grid h-11 w-11 place-items-center rounded-2xl text-sm font-extrabold text-white" :style="'background:'+(accents[key]||'#e8a317')" x-text="key.slice(0,1)"></span>
+              </div>
+            </button>
+          </template>
+        </section>
+        <section class="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.7fr)_minmax(17rem,0.9fr)]">
+          <section class="flex h-[24rem] flex-col rounded-2xl border border-line bg-surface p-4">
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-accent" x-text="t.DASHBOARD.OVERVIEW"></p>
+                <h2 class="text-base font-extrabold" x-text="t.DASHBOARD.STATISTICS"></h2>
+              </div>
+              <div class="ms-auto flex flex-wrap items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2">
+                  <select x-model="chartType" class="h-9 rounded-xl border border-line bg-raised px-3 text-xs font-semibold outline-none focus:border-accent/50">
+                    <option value="month" x-text="t.CALENDER.MONTH"></option>
+                    <option value="year" x-text="t.CALENDER.YEAR"></option>
+                  </select>
+                  <label class="flex items-center gap-1.5 text-xs text-muted"><span class="hidden sm:inline" x-text="t.FROM"></span><input type="date" class="h-9 rounded-xl border border-line bg-raised px-2 text-xs font-semibold text-fg outline-none" /></label>
+                  <label class="flex items-center gap-1.5 text-xs text-muted"><span class="hidden sm:inline" x-text="t.TO"></span><input type="date" class="h-9 rounded-xl border border-line bg-raised px-2 text-xs font-semibold text-fg outline-none" /></label>
+                </div>
+                <button type="button" class="grid h-9 w-9 place-items-center rounded-xl border border-line bg-raised hover:border-accent/40"><i data-lucide="refresh-cw" class="h-4 w-4"></i></button>
+              </div>
+            </div>
+            <div class="min-h-0 flex-1"><canvas id="areaChart"></canvas></div>
+          </section>
+          <section class="flex h-[24rem] flex-col rounded-2xl border border-line bg-surface p-4">
+            <div class="mb-2">
+              <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-accent" x-text="t.DASHBOARD.DISTRIBUTION"></p>
+              <h2 class="text-base font-extrabold" x-text="t.DASHBOARD.TOTAL"></h2>
+            </div>
+            <div class="relative min-h-0 flex-1">
+              <canvas id="donutChart"></canvas>
+              <div class="pointer-events-none absolute inset-0 grid place-items-center">
+                <div class="text-center">
+                  <p class="text-[11px] font-semibold text-muted" x-text="t.DASHBOARD.TOTAL"></p>
+                  <p class="tabular text-2xl font-extrabold" x-text="donutTotal.toLocaleString()"></p>
+                </div>
+              </div>
+            </div>
+            <ul class="mt-1 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+              <template x-for="item in donutSeries" :key="item.name">
+                <li class="flex items-center gap-2">
+                  <span class="h-2 w-2 rounded-full" :style="'background:'+item.color"></span>
+                  <span class="truncate text-muted" x-text="item.name"></span>
+                  <span class="ms-auto tabular font-bold" x-text="item.value.toLocaleString()"></span>
+                </li>
+              </template>
+            </ul>
+          </section>
+        </section>
+        <section class="rounded-2xl border border-line bg-surface p-4">
+          <h2 class="text-sm font-extrabold" x-text="t.DASHBOARD.ACTIVITY"></h2>
+          <ul class="mt-3 divide-y divide-line">
+            <template x-for="item in activity" :key="item.NotifyId">
+              <li class="flex items-center gap-3 py-2.5">
+                <span class="grid h-9 w-9 place-items-center rounded-xl bg-raised text-xs font-extrabold" x-text="(item.NotifyType||'N').slice(0,1)"></span>
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold" x-text="item.NotifyType || item.NotifyItem"></p>
+                  <p class="text-xs text-muted" x-text="item.NotifyItem"></p>
+                </div>
+              </li>
+            </template>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+  <div x-show="toastMsg" x-text="toastMsg" class="fixed bottom-4 end-4 z-50 rounded-xl bg-ink px-4 py-2 text-xs font-bold text-white shadow-xl"></div>
+<script>
+const EN = {"RTL":false,"APP_NAME":"Exista Business Solutions LLC","APP_MARK":"Nova","PAGINATION_1":"Page {Page} Of {total}","PAGINATION_2":"Show {Count} Of {total}","Employee":"Employee","COMPLETE":"Complete","ACCEPT":"Accept","ADD":"Add New","EDIT":"Edit","SAVE":"Save Changes","SAVING":"Saving...","CANCEL":"Cancel","DELETE":"Delete","DELETE_CONFIRM":"Are You Sure You Want To Delete? \n You Can't Undo This Operation","LOGOUT_CONFIRM":"Are You Sure You Want To Logout? \n This Will Revoke All Sessions From All Devices","DELETE_DIR_CONFIRM":"If you delete a folder \n\n it will be completely deleted and any files associated with it will be deleted. \n\n Please be careful.","ACTIONS":"Actions","APPROVE":"Approve","REJECT":"Reject","SHOW":"Show","CHOOSE":"Choose","SEARCH":"Search ...","EXPORT":"Export Data","REFRESH":"Refresh","SYNC":"Synchronize","LOGOUT":"Logout","TRANSFER":"Transfer","TRANSFER_NOTE":"Move meetings, calls, contracts and customers from one user to another with the same role and section.","MOVE_ALL":"Move everything","MOVE_HINT":"Tip: pick two users with the same role/section/sub-section. The system will skip duplicates automatically.","DATA":"Data","Copy":"Copy","FROM":"From","TO":"To","TOTAL":"Total","NO_DATA":"No Data Founded","GREETING":"Good to see you","GREETING_SUB":"Here is how the workspace is moving today.","ONLINE":"Online","OFFLINE":"Offline","RECONNECTING":"Reconnecting...","LOADING":"Loading ...","SYNCED":"Synchronized successfully","NOTIFICATIONS":"Notifications","NOTIFICATIONS_READ":"Read","NOTIFICATIONS_UNREAD":"Unread","MARK_ALL":"Mark all","PRESENCE":"Presence","THEME":{"LIGHT":"Light","DARK":"Dark"},"AUTH":{"TITLE":"Sign In to Exista Business Solutions LLC","SUBTITLE":"Use your CRM email or code to continue.","METHOD":"Email or code","PASSWORD":"Password","SIGNIN":"Sign in","SIGNIN_LOADING":"Signing in...","SIGNIN_ERROR":"Failed to sign in. Check your details.","NO_PERMISSION":"Your role cannot access any page. Contact admin."},"DASHBOARD":{"TITLE":"Dashboard","STATISTICS":"Growth","DISTRIBUTION":"Portfolio mix","TOTAL":"Total","EMPTY":"No metrics available","ACTIVITY":"Live activity","OVERVIEW":"Workspace overview","LIVE":"Live data","WAITING":"Waiting for workspace sync"},"CALENDER":{"MONTH":"Month","YEAR":"Year"},"SIDEBAR":{"Dashboard":"Dashboard","MasterData":"Master Data","Customer":"Customers","Contract":"Contracts","Tasks":"Tasks","Meeting":"Meetings","Call":"Calls","Request":"Requests","AccManager":"Access Manager","AuditLog":"Employee Logs","TeleSalesReport":"Tele Sales","SalesReport":"Sales","RevenueReport":"Revenue","AccountsReport":"Accounts","AccountManagerReport":"Account Manager","TechnicalReport":"Technical","Chat":"Chat","Docs":"Documents","Note":"Notes","User":"Users","Package":"Packages","Nitch":"Nitches","SubSectionSub":"Sub sections","Branch":"Branches","Role":"Roles","Classification":"Classification","SubPackage":"Sub packages","Interest":"Interests","ProductType":"Product types","ContactWay":"Contact ways","Platform":"Platforms","Team":"Teams","SubSection":"Sections","Directory":"Directories","AiModels":"AI Models","ReportsConfig":"Reports Config","GROUPS":{"Administrator":"Administrator","Management":"Customer Management","Activity":"Activity","Reports":"Reports","Support":"Messaging & Support","WorkSpace":"Work Space"}},"CHAT":{"NO_ROOM":"Please select a conversation first.","NO_ROOMS":"No Conversations Yet","NO_MESSAGES":"No Messages Yet Type First Message","NO_MESSAGES_PLACEHOLDER":"No Messages Yet","TITLE":"Chats","PLACE_HOLDER":"Type a message...","SEARCH_CHATS":"Search chats...","SEARCH_USER":"Search User ...","NO_USERS_FOUND":"No Users Found","EMPLOYEES":"Employees","ATTACHMENT":"Attachment","DELETED_MSG":"This message has been deleted.","GroupFilters":{"All":"All","Unread":"Unread","Groups":"Groups","Private":"Private","Favorites":"Favorites"}},"PAGES":{"COMING":"This module is ready for the next build.","BACK":"Back to dashboard"},"LANDING":{"Nav":{"Links":[{"Title":"What Makes Us Different?","Href":"#features"},{"Title":"Steps for use","Href":"#process"},{"Title":"Contact Us","Href":"#contact"}],"LOGIN":"Login","BACK":"Back","LOGOUT":"Log Out"},"Hero":{"TitlePart1":"The Future of","TitlePart2":"Customer","TitlePart3":"Management","SubTitle":"Exista Business Solutions LLC - Crm isn't just a tool it's your growth partner. Build stronger customer relationships, automate repetitive work, and scale your business smarter and faster."},"Features":[{"Title":"Comprehensive Dashboard","Text":"Stay on top of everything with a powerful dashboard. \n  Track customers, contracts, and team performance with real-time analytics \n all in one place."},{"Title":"Organize Data Your Way","Text":"Easily manage customers, leads, and contacts in a flexible table view. Sort, filter, and customize the way you work to get answers instantly.","Reverse":true},{"Title":"All in One Communication","Text":"Collaborate with your team and connect with customers directly inside the CRM. \n Keep every conversation organized, searchable, and accessible anytime."},{"Title":"Smart Task Automation","Text":"Automate daily routines, set reminders, and assign tasks with ease \n so your team can focus on what really matters: customers.","Reverse":true},{"Title":"Comprehensive and detailed reports tailored for your convenience.","Text":"Accurate and detailed reports covering every aspect of your business \n from team performance to customer engagement. Easily track key metrics, generate daily or monthly summaries, and compare results over time to make faster, data-driven decisions."}],"Process":{"Tag":"HOW IT WORKS","Title":"From Setup to Growth in 3 Steps","Steps":[{"Title":"Step 1: Onboard","Text":"Import your data and set up your team in minutes."},{"Title":"Step 2: Automate","Text":"Create workflows to handle repetitive tasks automatically."},{"Title":"Step 3: Grow","Text":"Boost productivity, close more deals, and grow faster."}]},"Cta":{"Title":"Ready to Transform Your Business?","Text":"Stop juggling tools. Start building relationships. Let's connect and explore how Exista Business Solutions LLC - Crm can accelerate your growth.","ButtonText":"Request a Demo"},"ALL_RIGHTS_RESERVED":"All Rights Reserved."},"TABS":{"CONTRACT_VIEW_TYPES":[{"label":"Active","value":"Active"},{"label":"In Active","value":"InActive"},{"label":"Pending","value":"Pending"}]},"TASK":{"Expired":"Expired","Approved":"Approved","Completed":"Completed","InProgress":"In Progress"},"Messages":{"NEW_REQUEST":"New Request From Client : {Name}"},"FORMS":{"Creator":"Created By","CustomerMeetStatus":"Meet Status","CustomerName":"Name","CustomerDataSource":"Data Source","CustomerPhoneNumber":"Phone","CustomerEmail":"Email","CustomerCountry":"Country","CustomerStatus":"Status","CustomerBranchId":"Branch","CustomerCreatedById":"Created By","CustomerAdress":"Adress","CustomerPhoneNumber2":"2nd Phone","CustomerUrl":"Url","CustomerType":"Type","CustomerWorkType":"Work Type","CustomerContactWayId":"Contact Way","CustomerLeedsPlatformId":"Leeds Platform","CustomerNitchId":"Nitch","CustomerClassificationId":"Classification","CustomerProductTypeId":"Product Type","CustomerInterestId":"Customer Interest","Note":"Note","ContractCustomerId":"Customer","ContractPackageId":"Package","ContractType":"Type","ContractInvoice":"Invoice","ContractAmount":"Total Amount","ContractStart":"Start","ContractCreatedAt":"Created At","ContractTaskName":"Task Name","ContractPayDate":"Pay Date","ContractPaidAmount":"Paid Amount","ContractPaidMonths":"Paid Months","ContractServiceStartDate":"Service Start Date","ContractSalesId":"Sales","ContractAccountId":"Accounts","ContractAccountManagerId":"Account Manager","TaskName":"Task Name","TaskValue":"Value","TaskStart":"Start Date","TaskEnd":"End Date","TaskIsCompleted":"Progress","TaskIsApproved":"Is Approved","TaskSection":"Section","TaskUsers":"Users","MeetName":"Name","MeetDate":"Date","CustomerId":"Customer","MeetStatus":"Status","MeetCreator":"Creator","MeetStartTime":"Start Time","MeetEndTime":"End Time","MeetLocation":"Location","MeetOutcome":"Outcome","MeetCustomerRating":"Customer Rating","MeetDescription":"Description","MeetUsers":"Users","CallDate":"Date","CallType":"Call Type","CallPurpose":"Call Purposes","CallOutcome":"Outcome","CallResponse":"Response","CallNote":"Note","Incoming":"Incoming","Outgoing":"Outgoing","Missed":"Missed","RequestDate":"Date","RequestStatus":"Status","TypeStatus":"Type","RejectReason":"Reason","Rejector":"Rejected By","Approver":"Approved By","AccType":"Type","AccProvider":"Provider","AccIdentifier":"Identifier","AccIsActive":"Active","AccCreatedAt":"Created","Provider":"Provider","Identifier":"Identifier","Secret":"Secret","IsActive":"Is Active","MetaData":"MetaData","UserSocket":"Presence","UserStatusId":"Status","UserName":"Name","UserCode":"Code","UserRoleId":"Role","UserSubSectionId":"Sub Section","UserSubSectionSubId":"Sub Section Sub","UserEmail":"Email","UserBranchId":"Branch","UserTeamId":"Team","UserJobTitle":"Job Title","UserCreatedAt":"Created At","UserPassword":"Password","UserStartDate":"Start Date","UserSectionId":"Section","TeamName":"Name","TeamSectionId":"Section","NitchName":"Name","InterestName":"Name","BranchName":"Name","BranchDomain":"Domain","BranchLogo":"Logo ( Only Png )","ProductTypeName":"Name","ContactWayName":"Name","PlatformName":"Name","RoleName":"Name","RolePermissions":"Permissions","ClassificationName":"Name","ClassificationCode":"Code","PackageName":"Name","SubPackageName":"Name","DirName":"Name","SubSectionName":"Name","SubSectionSubName":"Name","Date":"Date","Online":"Online","Office":"Office","CustomerSite":"Customer Site","Qualified":"Qualified","NotQualified":"Not Qualified","FollowUp":"Need follow Up","NoShow":"No Show","Prospecting":"Prospecting","Administrative":"Administrative","Negotiation":"Negotiation","Demo":"Demo","Proposal":"Proposal","Project":"Project","Support":"Support","Feedback":"Feedback","Internal":"Internal","Other":"Other","Answer":"Answered","NoAnswer":"Not Answered","Failed":"Failed","Meetings":"Meetings","Calls":"Calls","Contracts":"Contracts","Customers":"Clients","ConvertOptions":[{"label":"Tele Sales","value":"TeleSales"},{"label":"Sales","value":"Sales"},{"label":"AccountManager","value":"AccountManager"},{"label":"Accounts","value":"Accounts"},{"label":"Technical","value":"Technical"}],"LogAction":"Action","LogName":"Entity","LogRecord":"Record","LogMsg":"Message","LogUserName":"User","LogCreatedAt":"Date","RoomName":"Name","RoomType":"Type","RoomUpdatedAt":"Updated","DocName":"Name","DocUpdatedAt":"Updated","NTitle":"Title","NPinned":"Pinned","NUpdatedAt":"Updated","NBody":"Body","NTags":"Tags","Name":"Name","Data":"Data"},"LOG":{"CHANGES":"Changes","NO_CHANGES":"No Changes","VIEW_DETAIL":"Open Record","Types":[{"Label":"Contract","Value":"Contract"},{"Label":"Customer","Value":"Customer"},{"Label":"Renewal Request","Value":"SubScriptionRequest"},{"Label":"User","Value":"User"},{"Label":"Service","Value":"Service"},{"Label":"Task","Value":"Task"},{"Label":"Chat","Value":"Room"}],"Actions":[{"Label":"Create","Value":"Create"},{"Label":"Update","Value":"Update"},{"Label":"Delete","Value":"Delete"},{"Label":"Complete","Value":"Complete"},{"Label":"Approve","Value":"Approve"},{"Label":"Reject","Value":"Reject"}]},"Report":{"NoReport":"No Report Available","NoData":"No records found for the selected filters.","ChooseEmployee":"Please Select An Branch/Team/Employee","Tabs":[{"Label":"Main","Value":"Global"},{"Label":"Daily Trends","Value":"DailyTrends"},{"Label":"Weekly & Monthly Performance","Value":"WeeklyMonthly"},{"Label":"Data Quality","Value":"DataQuality"},{"Label":"Individual","Value":"Individual"},{"Label":"Comparison","Value":"Comparison"}],"Cols":{"TotalCustomers":"Total Customers","TotalCalls":"Total Calls","AnsweredCalls":"Answered Calls","TotalMeetings":"Total Meetings","CompletedMeetings":"Completed Meetings","ResponsiveRate":"Responsive %","NewestCustomers":"Newest Customers","Meetings":"Scheduled Meetings","Responsive":"Avg Response Rate","ActiveUsers":"Active Users","AvgCustomersPerUser":"Avg Customers/User","AnsweredCallsRate":"Answered Calls Rate","TransferredToSales":"Transferred To Sales","WithoutPhone":"Without Phone","WithoutEmail":"Without Email","WithoutCall":"Without Call"}}};
+const AR = {"RTL":true,"APP_NAME":"اكسيستا لحلول الاعمال","APP_MARK":"نوفا","PAGINATION_1":"Page {Page} Of {total}","PAGINATION_2":"Show {Count} Of {total}","Employee":"Employee","COMPLETE":"Complete","ACCEPT":"Accept","ADD":"إضافة جديد","EDIT":"تعديل","SAVE":"حفظ التغييرات","SAVING":"Saving...","CANCEL":"إلغاء","DELETE":"حذف","DELETE_CONFIRM":"Are You Sure You Want To Delete? \n You Can't Undo This Operation","LOGOUT_CONFIRM":"Are You Sure You Want To Logout? \n This Will Revoke All Sessions From All Devices","DELETE_DIR_CONFIRM":"If you delete a folder \n\n it will be completely deleted and any files associated with it will be deleted. \n\n Please be careful.","ACTIONS":"الإجراءات","APPROVE":"Approve","REJECT":"Reject","SHOW":"Show","CHOOSE":"اختر","SEARCH":"بحث ...","EXPORT":"Export Data","REFRESH":"تحديث","SYNC":"Synchronize","LOGOUT":"تسجيل الخروج","TRANSFER":"Transfer","TRANSFER_NOTE":"Move meetings, calls, contracts and customers from one user to another with the same role and section.","MOVE_ALL":"Move everything","MOVE_HINT":"Tip: pick two users with the same role/section/sub-section. The system will skip duplicates automatically.","DATA":"Data","Copy":"Copy","FROM":"من","TO":"إلى","TOTAL":"Total","NO_DATA":"لا توجد بيانات","GREETING":"أهلاً بعودتك","GREETING_SUB":"هذه حركة مساحة العمل اليوم.","ONLINE":"متصل","OFFLINE":"غير متصل","RECONNECTING":"Reconnecting...","LOADING":"جاري التحميل ...","SYNCED":"Synchronized successfully","NOTIFICATIONS":"Notifications","NOTIFICATIONS_READ":"Read","NOTIFICATIONS_UNREAD":"Unread","MARK_ALL":"Mark all","PRESENCE":"Presence","THEME":{"LIGHT":"Light","DARK":"Dark"},"AUTH":{"TITLE":"تسجيل الدخول إلى اكسيستا لحلول الاعمال","SUBTITLE":"استخدم بريد أو كود الـ CRM للمتابعة.","METHOD":"البريد أو الكود","PASSWORD":"كلمة المرور","SIGNIN":"تسجيل الدخول","SIGNIN_LOADING":"جاري الدخول...","SIGNIN_ERROR":"فشل تسجيل الدخول. تحقق من البيانات."},"DASHBOARD":{"TITLE":"لوحة التحكم","STATISTICS":"النمو","DISTRIBUTION":"توزيع المحفظة","TOTAL":"الإجمالي","EMPTY":"لا توجد مؤشرات","ACTIVITY":"النشاط المباشر","OVERVIEW":"نظرة عامة","LIVE":"بيانات مباشرة","WAITING":"بانتظار مزامنة مساحة العمل"},"CALENDER":{"MONTH":"Month","YEAR":"Year"},"SIDEBAR":{"Dashboard":"لوحة التحكم","MasterData":"البيانات الرئيسية","Customer":"العملاء","Contract":"العقود","Tasks":"المهام","Meeting":"الاجتماعات","Call":"المكالمات","Request":"الطلبات","AccManager":"مدير الصلاحيات","AuditLog":"سجل الموظفين","TeleSalesReport":"تلي سيلز","SalesReport":"المبيعات","RevenueReport":"الإيرادات","AccountsReport":"الحسابات","AccountManagerReport":"مديرو الحسابات","TechnicalReport":"الدعم الفني","Chat":"المحادثة","Docs":"المستندات","Note":"الملاحظات","User":"المستخدمون","Package":"Packages","Nitch":"Nitches","SubSectionSub":"Sub sections","Branch":"Branches","Role":"Roles","Classification":"Classification","SubPackage":"Sub packages","Interest":"Interests","ProductType":"Product types","ContactWay":"Contact ways","Platform":"Platforms","Team":"Teams","SubSection":"Sections","Directory":"Directories","AiModels":"AI Models","ReportsConfig":"Reports Config","GROUPS":{"Administrator":"مسؤول النظام","Management":"إدارة العملاء","Activity":"النشاط","Reports":"التقارير","Support":"الدعم والمراسلات","WorkSpace":"مساحة العمل"}},"CHAT":{"NO_ROOM":"Please select a conversation first.","NO_ROOMS":"No Conversations Yet","NO_MESSAGES":"No Messages Yet Type First Message","NO_MESSAGES_PLACEHOLDER":"No Messages Yet","TITLE":"Chats","PLACE_HOLDER":"Type a message...","SEARCH_CHATS":"Search chats...","SEARCH_USER":"Search User ...","NO_USERS_FOUND":"No Users Found","EMPLOYEES":"Employees","ATTACHMENT":"Attachment","DELETED_MSG":"This message has been deleted.","GroupFilters":{"All":"All","Unread":"Unread","Groups":"Groups","Private":"Private","Favorites":"Favorites"}},"PAGES":{"COMING":"This module is ready for the next build.","BACK":"Back to dashboard"},"LANDING":{"Nav":{"Links":[{"Title":"What Makes Us Different?","Href":"#features"},{"Title":"Steps for use","Href":"#process"},{"Title":"Contact Us","Href":"#contact"}],"LOGIN":"Login","BACK":"Back","LOGOUT":"Log Out"},"Hero":{"TitlePart1":"The Future of","TitlePart2":"Customer","TitlePart3":"Management","SubTitle":"Exista Business Solutions LLC - Crm isn't just a tool it's your growth partner. Build stronger customer relationships, automate repetitive work, and scale your business smarter and faster."},"Features":[{"Title":"Comprehensive Dashboard","Text":"Stay on top of everything with a powerful dashboard. \n  Track customers, contracts, and team performance with real-time analytics \n all in one place."},{"Title":"Organize Data Your Way","Text":"Easily manage customers, leads, and contacts in a flexible table view. Sort, filter, and customize the way you work to get answers instantly.","Reverse":true},{"Title":"All in One Communication","Text":"Collaborate with your team and connect with customers directly inside the CRM. \n Keep every conversation organized, searchable, and accessible anytime."},{"Title":"Smart Task Automation","Text":"Automate daily routines, set reminders, and assign tasks with ease \n so your team can focus on what really matters: customers.","Reverse":true},{"Title":"Comprehensive and detailed reports tailored for your convenience.","Text":"Accurate and detailed reports covering every aspect of your business \n from team performance to customer engagement. Easily track key metrics, generate daily or monthly summaries, and compare results over time to make faster, data-driven decisions."}],"Process":{"Tag":"HOW IT WORKS","Title":"From Setup to Growth in 3 Steps","Steps":[{"Title":"Step 1: Onboard","Text":"Import your data and set up your team in minutes."},{"Title":"Step 2: Automate","Text":"Create workflows to handle repetitive tasks automatically."},{"Title":"Step 3: Grow","Text":"Boost productivity, close more deals, and grow faster."}]},"Cta":{"Title":"Ready to Transform Your Business?","Text":"Stop juggling tools. Start building relationships. Let's connect and explore how Exista Business Solutions LLC - Crm can accelerate your growth.","ButtonText":"Request a Demo"},"ALL_RIGHTS_RESERVED":"All Rights Reserved."},"TABS":{"CONTRACT_VIEW_TYPES":[{"label":"Active","value":"Active"},{"label":"In Active","value":"InActive"},{"label":"Pending","value":"Pending"}]},"TASK":{"Expired":"Expired","Approved":"Approved","Completed":"Completed","InProgress":"In Progress"},"Messages":{"NEW_REQUEST":"New Request From Client : {Name}"},"FORMS":{"Creator":"Created By","CustomerMeetStatus":"Meet Status","CustomerName":"Name","CustomerDataSource":"Data Source","CustomerPhoneNumber":"Phone","CustomerEmail":"Email","CustomerCountry":"Country","CustomerStatus":"Status","CustomerBranchId":"Branch","CustomerCreatedById":"Created By","CustomerAdress":"Adress","CustomerPhoneNumber2":"2nd Phone","CustomerUrl":"Url","CustomerType":"Type","CustomerWorkType":"Work Type","CustomerContactWayId":"Contact Way","CustomerLeedsPlatformId":"Leeds Platform","CustomerNitchId":"Nitch","CustomerClassificationId":"Classification","CustomerProductTypeId":"Product Type","CustomerInterestId":"Customer Interest","Note":"Note","ContractCustomerId":"Customer","ContractPackageId":"Package","ContractType":"Type","ContractInvoice":"Invoice","ContractAmount":"Total Amount","ContractStart":"Start","ContractCreatedAt":"Created At","ContractTaskName":"Task Name","ContractPayDate":"Pay Date","ContractPaidAmount":"Paid Amount","ContractPaidMonths":"Paid Months","ContractServiceStartDate":"Service Start Date","ContractSalesId":"Sales","ContractAccountId":"Accounts","ContractAccountManagerId":"Account Manager","TaskName":"Task Name","TaskValue":"Value","TaskStart":"Start Date","TaskEnd":"End Date","TaskIsCompleted":"Progress","TaskIsApproved":"Is Approved","TaskSection":"Section","TaskUsers":"Users","MeetName":"Name","MeetDate":"Date","CustomerId":"Customer","MeetStatus":"Status","MeetCreator":"Creator","MeetStartTime":"Start Time","MeetEndTime":"End Time","MeetLocation":"Location","MeetOutcome":"Outcome","MeetCustomerRating":"Customer Rating","MeetDescription":"Description","MeetUsers":"Users","CallDate":"Date","CallType":"Call Type","CallPurpose":"Call Purposes","CallOutcome":"Outcome","CallResponse":"Response","CallNote":"Note","Incoming":"Incoming","Outgoing":"Outgoing","Missed":"Missed","RequestDate":"Date","RequestStatus":"Status","TypeStatus":"Type","RejectReason":"Reason","Rejector":"Rejected By","Approver":"Approved By","AccType":"Type","AccProvider":"Provider","AccIdentifier":"Identifier","AccIsActive":"Active","AccCreatedAt":"Created","Provider":"Provider","Identifier":"Identifier","Secret":"Secret","IsActive":"Is Active","MetaData":"MetaData","UserSocket":"Presence","UserStatusId":"Status","UserName":"Name","UserCode":"Code","UserRoleId":"Role","UserSubSectionId":"Sub Section","UserSubSectionSubId":"Sub Section Sub","UserEmail":"Email","UserBranchId":"Branch","UserTeamId":"Team","UserJobTitle":"Job Title","UserCreatedAt":"Created At","UserPassword":"Password","UserStartDate":"Start Date","UserSectionId":"Section","TeamName":"Name","TeamSectionId":"Section","NitchName":"Name","InterestName":"Name","BranchName":"Name","BranchDomain":"Domain","BranchLogo":"Logo ( Only Png )","ProductTypeName":"Name","ContactWayName":"Name","PlatformName":"Name","RoleName":"Name","RolePermissions":"Permissions","ClassificationName":"Name","ClassificationCode":"Code","PackageName":"Name","SubPackageName":"Name","DirName":"Name","SubSectionName":"Name","SubSectionSubName":"Name","Date":"Date","Online":"Online","Office":"Office","CustomerSite":"Customer Site","Qualified":"Qualified","NotQualified":"Not Qualified","FollowUp":"Need follow Up","NoShow":"No Show","Prospecting":"Prospecting","Administrative":"Administrative","Negotiation":"Negotiation","Demo":"Demo","Proposal":"Proposal","Project":"Project","Support":"Support","Feedback":"Feedback","Internal":"Internal","Other":"Other","Answer":"Answered","NoAnswer":"Not Answered","Failed":"Failed","Meetings":"Meetings","Calls":"Calls","Contracts":"Contracts","Customers":"Clients","ConvertOptions":[{"label":"Tele Sales","value":"TeleSales"},{"label":"Sales","value":"Sales"},{"label":"AccountManager","value":"AccountManager"},{"label":"Accounts","value":"Accounts"},{"label":"Technical","value":"Technical"}],"LogAction":"Action","LogName":"Entity","LogRecord":"Record","LogMsg":"Message","LogUserName":"User","LogCreatedAt":"Date","RoomName":"Name","RoomType":"Type","RoomUpdatedAt":"Updated","DocName":"Name","DocUpdatedAt":"Updated","NTitle":"Title","NPinned":"Pinned","NUpdatedAt":"Updated","NBody":"Body","NTags":"Tags","Name":"Name","Data":"Data"},"LOG":{"CHANGES":"Changes","NO_CHANGES":"No Changes","VIEW_DETAIL":"Open Record","Types":[{"Label":"Contract","Value":"Contract"},{"Label":"Customer","Value":"Customer"},{"Label":"Renewal Request","Value":"SubScriptionRequest"},{"Label":"User","Value":"User"},{"Label":"Service","Value":"Service"},{"Label":"Task","Value":"Task"},{"Label":"Chat","Value":"Room"}],"Actions":[{"Label":"Create","Value":"Create"},{"Label":"Update","Value":"Update"},{"Label":"Delete","Value":"Delete"},{"Label":"Complete","Value":"Complete"},{"Label":"Approve","Value":"Approve"},{"Label":"Reject","Value":"Reject"}]},"Report":{"NoReport":"No Report Available","NoData":"No records found for the selected filters.","ChooseEmployee":"Please Select An Branch/Team/Employee","Tabs":[{"Label":"Main","Value":"Global"},{"Label":"Daily Trends","Value":"DailyTrends"},{"Label":"Weekly & Monthly Performance","Value":"WeeklyMonthly"},{"Label":"Data Quality","Value":"DataQuality"},{"Label":"Individual","Value":"Individual"},{"Label":"Comparison","Value":"Comparison"}],"Cols":{"TotalCustomers":"Total Customers","TotalCalls":"Total Calls","AnsweredCalls":"Answered Calls","TotalMeetings":"Total Meetings","CompletedMeetings":"Completed Meetings","ResponsiveRate":"Responsive %","NewestCustomers":"Newest Customers","Meetings":"Scheduled Meetings","Responsive":"Avg Response Rate","ActiveUsers":"Active Users","AvgCustomersPerUser":"Avg Customers/User","AnsweredCallsRate":"Answered Calls Rate","TransferredToSales":"Transferred To Sales","WithoutPhone":"Without Phone","WithoutEmail":"Without Email","WithoutCall":"Without Call"}}};
+function novaApp(){
+  return {
+    open: localStorage.sidebar !== "0",
+    theme: localStorage.theme || "light",
+    langKey: localStorage.lang || "en",
+    t: EN,
+    menuOpen: false,
+    notifOpen: false,
+    toastMsg: "",
+    notifs: [{"NotifyId":1,"NotifyType":"Customer","NotifyItem":"Horizon Labs added"},{"NotifyId":2,"NotifyType":"Contract","NotifyItem":"Q3 retainer signed"},{"NotifyId":3,"NotifyType":"User","NotifyItem":"Sara joined Sales"},{"NotifyId":4,"NotifyType":"Request","NotifyItem":"Upgrade request #1842"},{"NotifyId":5,"NotifyType":"Meeting","NotifyItem":"Kickoff with Northwind"}],
+    boot(){
+      this.t = this.langKey === "ar" ? AR : EN;
+      document.documentElement.classList.toggle("dark", this.theme === "dark");
+      document.documentElement.lang = this.langKey;
+      document.documentElement.dir = this.t.RTL ? "rtl" : "ltr";
+      this.$watch("open", v => localStorage.sidebar = v ? "1" : "0");
+      this.$nextTick(() => {
+        window.lucide && lucide.createIcons();
+        this.bootCharts && this.bootCharts();
+        this.applyTab && this.applyTab();
+        if (this.notes && this.activeId) {
+          const n = this.notes.find((x) => x.NId == this.activeId);
+          if (n) { this.title = n.NTitle; this.body = n.NBody; this.tags = n.NTags || []; }
+        }
+      });
+    },
+    toggleTheme(){
+      this.theme = this.theme === "dark" ? "light" : "dark";
+      localStorage.theme = this.theme;
+      document.documentElement.classList.toggle("dark", this.theme === "dark");
+    },
+    toggleLang(){
+      this.langKey = this.langKey === "ar" ? "en" : "ar";
+      localStorage.lang = this.langKey;
+      this.t = this.langKey === "ar" ? AR : EN;
+      document.documentElement.lang = this.langKey;
+      document.documentElement.dir = this.t.RTL ? "rtl" : "ltr";
+    },
+    toast(msg){ this.toastMsg = msg; setTimeout(() => this.toastMsg = "", 1600); },
+    formLabel(key){ return (this.t.FORMS && this.t.FORMS[key]) || key; },
+    
+    counters: {"User":48,"Customer":1264,"Contract":892,"Package":18,"Nitch":24,"SubSectionSub":36,"Branch":7},
+    accents: {"User":"#3b82f6","Customer":"#22c55e","Contract":"#38bdf8","Package":"#f472b6","Nitch":"#f59e0b","SubSectionSub":"#a78bfa","Branch":"#818cf8"},
+    activity: [{"NotifyId":1,"NotifyType":"Customer","NotifyItem":"Horizon Labs added"},{"NotifyId":2,"NotifyType":"Contract","NotifyItem":"Q3 retainer signed"},{"NotifyId":3,"NotifyType":"User","NotifyItem":"Sara joined Sales"},{"NotifyId":4,"NotifyType":"Request","NotifyItem":"Upgrade request #1842"},{"NotifyId":5,"NotifyType":"Meeting","NotifyItem":"Kickoff with Northwind"}],
+    series: [{"period":"01-2026","contract":54,"customer":92},{"period":"02-2026","contract":61,"customer":104},{"period":"03-2026","contract":48,"customer":97},{"period":"04-2026","contract":72,"customer":121},{"period":"05-2026","contract":69,"customer":118},{"period":"06-2026","contract":81,"customer":136},{"period":"07-2026","contract":76,"customer":129},{"period":"08-2026","contract":88,"customer":148}],
+    chartType: "month",
+    today: new Intl.DateTimeFormat(undefined,{weekday:"long",month:"long",day:"numeric"}).format(new Date()),
+    get donutSeries(){
+      return Object.entries(this.counters).map(([name,value])=>({name:this.t.SIDEBAR[name]||name,value,color:this.accents[name]||"#64748b"}));
+    },
+    get donutTotal(){ return Object.values(this.counters).reduce((s,n)=>s+Number(n||0),0); },
+    goStat(key){
+      if(key==="Customer") location.href="mgmt/CustomerPage.html";
+      else if(key==="Contract") location.href="mgmt/ContractPage.html";
+      else location.href="Admin.html?tab="+key;
+    },
+    bootCharts(){
+      const area = document.getElementById("areaChart");
+      const donut = document.getElementById("donutChart");
+      if(!area || !window.Chart) return;
+      new Chart(area, { type:"line", data:{ labels:this.series.map(s=>s.period), datasets:[
+        { label:this.t.SIDEBAR.Contract, data:this.series.map(s=>s.contract), borderColor:"#38bdf8", backgroundColor:"rgba(56,189,248,.28)", fill:true, tension:.35, borderWidth:2.4, pointRadius:0 },
+        { label:this.t.SIDEBAR.Customer, data:this.series.map(s=>s.customer), borderColor:"#22c55e", backgroundColor:"rgba(34,197,94,.24)", fill:true, tension:.35, borderWidth:2.4, pointRadius:0 },
+      ]}, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{ grid:{display:false} }, y:{ grid:{ color:"rgba(28,22,14,0.08)" }, ticks:{ callback:(v)=>v } } } } });
+      new Chart(donut, { type:"doughnut", data:{ labels:this.donutSeries.map(s=>s.name), datasets:[{ data:this.donutSeries.map(s=>s.value), backgroundColor:this.donutSeries.map(s=>s.color), borderWidth:3, borderColor:getComputedStyle(document.documentElement).getPropertyValue("--surface")||"#fff", spacing:3 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:"62%", plugins:{legend:{display:false}} } });
+    },
+  
+  };
+}
+document.addEventListener("alpine:initialized", () => window.lucide && lucide.createIcons());
+</script>
+</body>
+</html>

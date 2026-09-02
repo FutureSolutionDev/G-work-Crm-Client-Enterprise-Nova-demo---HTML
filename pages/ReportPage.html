@@ -1,0 +1,5 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8" /><script>
+const q=new URLSearchParams(location.search).get("report")||"TeleSalesReport";
+const map={ TeleSalesReport:"reports/ClassicReport.html?report=TeleSalesReport", SalesReport:"reports/ClassicReport.html?report=SalesReport", RevenueReport:"reports/RevenueReport.html", AccountsReport:"reports/ScopedReport.html?report=AccountsReport", AccountManagerReport:"reports/ScopedReport.html?report=AccountManagerReport", TechnicalReport:"reports/ScopedReport.html?report=TechnicalReport" };
+location.replace(map[q]||map.TeleSalesReport);
+</script></head></html>
